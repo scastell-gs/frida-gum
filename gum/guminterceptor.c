@@ -21,6 +21,10 @@
 # include <mach/mach.h>
 #endif
 
+#ifdef HAVE_ANDROID
+# include <android/log.h>
+#endif
+
 #ifdef HAVE_MIPS
 # define GUM_INTERCEPTOR_CODE_SLICE_SIZE 1024
 #else
@@ -243,6 +247,9 @@ static GumInvocationStack _gum_interceptor_empty_stack = { NULL, 0 };
 static void
 gum_interceptor_class_init (GumInterceptorClass * klass)
 {
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor init"); 
+  #endif
   GObjectClass * object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = gum_interceptor_dispose;
@@ -364,6 +371,10 @@ gum_interceptor_attach (GumInterceptor * self,
   GumFunctionContext * function_ctx;
   GumInstrumentationError error;
 
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor attach"); 
+  #endif
+
   gum_interceptor_ignore_current_thread (self);
   GUM_INTERCEPTOR_LOCK (self);
   gum_interceptor_transaction_begin (&self->current_transaction);
@@ -471,6 +482,9 @@ gum_interceptor_replace (GumInterceptor * self,
                          gpointer replacement_data,
                          gpointer * original_function)
 {
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor replace"); 
+  #endif
   return gum_interceptor_replace_with_type (self, GUM_INTERCEPTOR_TYPE_DEFAULT,
       function_address, replacement_function, replacement_data,
       original_function);
@@ -482,6 +496,9 @@ gum_interceptor_replace_fast (GumInterceptor * self,
                               gpointer replacement_function,
                               gpointer * original_function)
 {
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor replace"); 
+  #endif
   return gum_interceptor_replace_with_type (self, GUM_INTERCEPTOR_TYPE_FAST,
       function_address, replacement_function, NULL,
       original_function);
@@ -920,6 +937,9 @@ static void
 gum_interceptor_transaction_init (GumInterceptorTransaction * transaction,
                                   GumInterceptor * interceptor)
 {
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor transaction init"); 
+  #endif
   transaction->is_dirty = FALSE;
   transaction->level = 0;
   transaction->pending_destroy_tasks = g_queue_new ();
@@ -954,6 +974,9 @@ gum_interceptor_transaction_begin (GumInterceptorTransaction * self)
 static void
 gum_interceptor_transaction_end (GumInterceptorTransaction * self)
 {
+  #if defined (HAVE_ANDROID)
+    __android_log_write (ANDROID_LOG_INFO, "FRIDA", "Interceptor transaction end"); 
+  #endif
   GumInterceptor * interceptor = self->interceptor;
   GumInterceptorTransaction transaction_copy;
   GList * addresses, * cur;
